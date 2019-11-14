@@ -57,7 +57,7 @@ public class Personne {
             PreparedStatement pre = c.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
-                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
+                res.add(new Personne(rs.getLong("id"), rs.getString("nom"), rs.getString("prenom")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -66,7 +66,20 @@ public class Personne {
     }
 
     public static Personne findById(long id) {
-        return null;
+        Personne p = null;
+        try {
+            Connection c = ConnectionSingleton.getInstance();
+            String sql = "SELECT * FROM Personne WHERE id = ?";
+            PreparedStatement pre = c.prepareStatement(sql);
+            pre.setLong(1, id);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                p = new Personne(rs.getLong("id"), rs.getString("nom"), rs.getString("prenom"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return p;
     }
 
     public static List<Personne> findByName(String n) {
