@@ -1,6 +1,8 @@
 package activerecord.poo;
 
 
+import java.util.List;
+
 public class Personne {
 
     private long   id;
@@ -38,6 +40,18 @@ public class Personne {
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+    public static List<Personne> findAll() {
+        return null;
+    }
+
+    public static Personne findById(int id) {
+        return null;
+    }
+
+    public static List<Personne> findByName(String n) {
+        return null;
     }
 
 }
