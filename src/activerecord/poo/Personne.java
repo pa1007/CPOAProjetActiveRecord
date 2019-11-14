@@ -99,4 +99,14 @@ public class Personne {
         return res;
     }
 
+    public static void createTable() {
+        String sql = "CREATE TABLE Personne ( " + "ID INTEGER  AUTO_INCREMENT, "
+                + "NOM varchar(40) NOT NULL, " + "PRENOM varchar(40) NOT NULL, " + "PRIMARY KEY (ID))";
+        ConnectionSingleton.execute(sql);
+    }
+
+    public static void deleteTable() {
+        String sql = "DROP table personne";
+        ConnectionSingleton.execute(sql);
+    }
 }
