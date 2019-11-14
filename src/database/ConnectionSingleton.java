@@ -44,5 +44,6 @@ public class ConnectionSingleton {
 
     public static void setDbName(String dbName) {
         ConnectionSingleton.dbName = dbName;
+        s = null;
     }
 }
