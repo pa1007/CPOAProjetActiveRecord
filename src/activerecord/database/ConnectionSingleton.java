@@ -46,4 +46,18 @@ public class ConnectionSingleton {
         ConnectionSingleton.dbName = dbName;
         s = null;
     }
+
+    /**
+     * @param commande The commande to do
+     * @return 1 if true, 0 if false or -1 if an error has been fond;
+     */
+    public static int execute(String commande) {
+        try {
+            return getInstance().prepareStatement(commande).execute() ? 1 : 0;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }
