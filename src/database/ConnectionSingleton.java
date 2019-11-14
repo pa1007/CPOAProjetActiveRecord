@@ -42,7 +42,7 @@ public class ConnectionSingleton {
         return s.getConnection();
     }
 
-    public static void setDbName(String dbName) {
+    public static void setNomDB(String dbName) {
         ConnectionSingleton.dbName = dbName;
         s = null;
     }
