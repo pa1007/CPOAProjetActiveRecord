@@ -53,7 +53,7 @@ public class Personne {
         List<Personne> res = new ArrayList<>();
         try {
             Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM Personne;";
+            String sql = "SELECT * FROM Personne";
             PreparedStatement pre = c.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
@@ -83,7 +83,20 @@ public class Personne {
     }
 
     public static List<Personne> findByName(String n) {
-        return null;
+        List<Personne> res = new ArrayList<>();
+        try {
+            Connection c = ConnectionSingleton.getInstance();
+            String sql = "SELECT * FROM Personne WHERE nom = ?";
+            PreparedStatement pre = c.prepareStatement(sql);
+            pre.setString(1, n);
+            ResultSet rs = pre.executeQuery();
+            while (rs.next()) {
+                res.add(new Personne(rs.getLong("id"), rs.getString("nom"), rs.getString("prenom")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
 }
