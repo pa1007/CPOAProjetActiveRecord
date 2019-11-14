@@ -12,22 +12,22 @@ import java.util.List;
 
 public class Personne {
 
-    private long   id;
+    private int   id;
     private String nom;
     private String prenom;
 
 
-    public Personne(long id, String nom, String prenom) {
+    public Personne(int id, String nom, String prenom) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -57,7 +57,7 @@ public class Personne {
             PreparedStatement pre = c.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
-                res.add(new Personne(rs.getLong("id"), rs.getString("nom"), rs.getString("prenom")));
+                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -65,16 +65,16 @@ public class Personne {
         return res;
     }
 
-    public static Personne findById(long id) {
+    public static Personne findById(int id) {
         Personne p = null;
         try {
             Connection c = ConnectionSingleton.getInstance();
             String sql = "SELECT * FROM Personne WHERE id = ?";
             PreparedStatement pre = c.prepareStatement(sql);
-            pre.setLong(1, id);
+            pre.setInt(1, id);
             ResultSet rs = pre.executeQuery();
             if (rs.next()) {
-                p = new Personne(rs.getLong("id"), rs.getString("nom"), rs.getString("prenom"));
+                p = new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -91,7 +91,7 @@ public class Personne {
             pre.setString(1, n);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
-                res.add(new Personne(rs.getLong("id"), rs.getString("nom"), rs.getString("prenom")));
+                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
