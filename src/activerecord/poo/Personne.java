@@ -2,16 +2,14 @@ package activerecord.poo;
 
 
 import activerecord.database.ConnectionSingleton;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Personne {
 
-    private int   id;
+    private int id;
     private String nom;
     private String prenom;
 
@@ -73,16 +71,15 @@ public class Personne {
     public static Personne findById(int id) {
         Personne p = null;
         try {
-            Connection        c   = ConnectionSingleton.getInstance();
-            String            sql = "SELECT * FROM Personne WHERE id = ?";
+            Connection c = ConnectionSingleton.getInstance();
+            String sql = "SELECT * FROM Personne WHERE id = ?";
             PreparedStatement pre = c.prepareStatement(sql);
             pre.setInt(1, id);
             ResultSet rs = pre.executeQuery();
             if (rs.next()) {
                 p = new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"));
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return p;
@@ -103,6 +100,51 @@ public class Personne {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public void save() {
+        if (this.id == -1) {
+            try {
+                Connection c = ConnectionSingleton.getInstance();
+                String sql = "INSERT INTO Personne(NOM,PRENOM) VALUES(?,?)";
+                PreparedStatement pre = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                pre.setString(1, this.nom);
+                pre.setString(2, this.prenom);
+                pre.executeQuery();
+                ResultSet keys = pre.getGeneratedKeys();
+                keys.next();
+                this.id = keys.getInt(1);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                Connection c = ConnectionSingleton.getInstance();
+                String sql = "UPDATE Personne SET nom = ?, prenom = ? WHERE id = ?";
+                PreparedStatement pre = c.prepareStatement(sql);
+                pre.setString(1, this.nom);
+                pre.setString(2, this.prenom);
+                pre.setInt(3, this.id);
+                pre.executeQuery();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void delete() {
+        if (id != -1) {
+            try {
+                Connection c = ConnectionSingleton.getInstance();
+                String sql = "DELETE FROM Personne WHERE id = ?";
+                PreparedStatement pre = c.prepareStatement(sql);
+                pre.setInt(1, this.id);
+                pre.execute();
+                this.id = -1;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void createTable() {
