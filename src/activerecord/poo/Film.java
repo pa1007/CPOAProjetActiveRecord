@@ -60,7 +60,7 @@ public class Film {
                 "  `ID_REA` int(11) DEFAULT NULL,\n" +
                 "  PRIMARY KEY (`ID`),\n" +
                 "  KEY `ID_REA` (`ID_REA`)\n" +
-                ") ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;";
+                ") ENGINE=InnoDB  DEFAULT CHARSET=latin1;";
         ConnectionSingleton.execute(co);
     }
 

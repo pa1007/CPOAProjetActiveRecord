@@ -2,28 +2,27 @@ package activerecord.poo;
 
 
 import activerecord.database.ConnectionSingleton;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Personne {
 
-    private int id;
+    private int    id;
     private String nom;
     private String prenom;
 
-
-    private Personne(int id, String nom, String prenom) {
-        this.id = id;
-        this.nom = nom;
-        this.prenom = prenom;
-    }
 
     public Personne(String nom, String prenom) {
         this.nom = nom;
         this.prenom = prenom;
         id = -1;
+    }
+
+    private Personne(int id, String nom, String prenom) {
+        this.id = id;
+        this.nom = nom;
+        this.prenom = prenom;
     }
 
     public int getId() {
@@ -52,71 +51,11 @@ public class Personne {
         this.prenom = prenom;
     }
 
-    public static List<Personne> findAll() {
-        List<Personne> res = new ArrayList<>();
-        try {
-            Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM personne";
-            PreparedStatement pre = c.prepareStatement(sql);
-            ResultSet rs = pre.executeQuery();
-            while (rs.next()) {
-                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-
-    public static Personne findById(int id) {
-        Personne p = null;
-        try {
-            Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM personne WHERE id = ?";
-            PreparedStatement pre = c.prepareStatement(sql);
-            pre.setInt(1, id);
-            ResultSet rs = pre.executeQuery();
-            if (rs.next()) {
-                p = new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return p;
-    }
-
-    public static List<Personne> findByName(String n) {
-        List<Personne> res = new ArrayList<>();
-        try {
-            Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM personne WHERE nom = ?";
-            PreparedStatement pre = c.prepareStatement(sql);
-            pre.setString(1, n);
-            ResultSet rs = pre.executeQuery();
-            while (rs.next()) {
-                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
-
-    public static void createTable() {
-        String sql = "CREATE TABLE IF NOT EXISTS `personne` (\n" +
-                "  `ID` int(11) NOT NULL AUTO_INCREMENT,\n" +
-                "  `NOM` varchar(40) NOT NULL,\n" +
-                "  `PRENOM` varchar(40) NOT NULL,\n" +
-                "  PRIMARY KEY (`ID`)\n" +
-                ") ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;";
-        ConnectionSingleton.execute(sql);
-    }
-
     public void save() {
         if (this.id == -1) {
             try {
-                Connection c = ConnectionSingleton.getInstance();
-                String sql = "INSERT INTO personne(NOM,PRENOM) VALUES(?,?)";
+                Connection        c   = ConnectionSingleton.getInstance();
+                String            sql = "INSERT INTO personne(NOM,PRENOM) VALUES(?,?)";
                 PreparedStatement pre = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pre.setString(1, this.nom);
                 pre.setString(2, this.prenom);
@@ -124,19 +63,22 @@ public class Personne {
                 ResultSet keys = pre.getGeneratedKeys();
                 keys.next();
                 this.id = keys.getInt(1);
-            } catch (SQLException e) {
+            }
+            catch (SQLException e) {
                 e.printStackTrace();
             }
-        } else {
+        }
+        else {
             try {
-                Connection c = ConnectionSingleton.getInstance();
-                String sql = "UPDATE personne SET nom = ?, prenom = ? WHERE id = ?";
+                Connection        c   = ConnectionSingleton.getInstance();
+                String            sql = "UPDATE personne SET nom = ?, prenom = ? WHERE id = ?";
                 PreparedStatement pre = c.prepareStatement(sql);
                 pre.setString(1, this.nom);
                 pre.setString(2, this.prenom);
                 pre.setInt(3, this.id);
                 pre.executeUpdate();
-            } catch (SQLException e) {
+            }
+            catch (SQLException e) {
                 e.printStackTrace();
             }
         }
@@ -145,16 +87,80 @@ public class Personne {
     public void delete() {
         if (id != -1) {
             try {
-                Connection c = ConnectionSingleton.getInstance();
-                String sql = "DELETE FROM personne WHERE id = ?";
+                Connection        c   = ConnectionSingleton.getInstance();
+                String            sql = "DELETE FROM personne WHERE id = ?";
                 PreparedStatement pre = c.prepareStatement(sql);
                 pre.setInt(1, this.id);
                 pre.execute();
                 this.id = -1;
-            } catch (SQLException e) {
+            }
+            catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static List<Personne> findAll() {
+        List<Personne> res = new ArrayList<>();
+        try {
+            Connection        c   = ConnectionSingleton.getInstance();
+            String            sql = "SELECT * FROM personne";
+            PreparedStatement pre = c.prepareStatement(sql);
+            ResultSet         rs  = pre.executeQuery();
+            while (rs.next()) {
+                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static Personne findById(int id) {
+        Personne p = null;
+        try {
+            Connection        c   = ConnectionSingleton.getInstance();
+            String            sql = "SELECT * FROM personne WHERE id = ?";
+            PreparedStatement pre = c.prepareStatement(sql);
+            pre.setInt(1, id);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                p = new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+
+    public static List<Personne> findByName(String n) {
+        List<Personne> res = new ArrayList<>();
+        try {
+            Connection        c   = ConnectionSingleton.getInstance();
+            String            sql = "SELECT * FROM personne WHERE nom = ?";
+            PreparedStatement pre = c.prepareStatement(sql);
+            pre.setString(1, n);
+            ResultSet rs = pre.executeQuery();
+            while (rs.next()) {
+                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public static void createTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS `personne` (\n" +
+                     "  `ID` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                     "  `NOM` varchar(40) NOT NULL,\n" +
+                     "  `PRENOM` varchar(40) NOT NULL,\n" +
+                     "  PRIMARY KEY (`ID`)\n" +
+                     ") ENGINE=InnoDB  DEFAULT CHARSET=latin1 ;";
+        ConnectionSingleton.execute(sql);
     }
 
     public static void deleteTable() {
