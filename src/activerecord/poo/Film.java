@@ -9,9 +9,9 @@ import java.sql.SQLException;
 
 public class Film {
 
-    private int   id;
+    private int    id;
     private String titre;
-    private int   idRea;
+    private int    idRea;
 
 
     public Film(String titre, Personne p) {
@@ -54,6 +54,50 @@ public class Film {
         this.idRea = idRea;
     }
 
+    public void save() {
+        try {
+            Connection c = ConnectionSingleton.getInstance();
+            if (id == -1) {
+                String sql = "insert into film (TITRE, ID_REA) VALUES "
+                             + "(?,?)";
+                PreparedStatement pre = c.prepareStatement(sql);
+                pre.setString(1, titre);
+                pre.setInt(2, idRea);
+                ResultSet rs = pre.executeQuery();
+                rs.next();
+                id = rs.getInt("ID");
+            }
+            else {
+                String sql = "update film set titre = ? , ID_REA =  ? where id = ?";
+                PreparedStatement pre = c.prepareStatement(sql);
+                pre.setString(1, titre);
+                pre.setInt(2, idRea);
+                pre.setInt(3,id);
+                pre.execute();
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void delete() {
+        if (id != -1) {
+            try {
+                Connection        c   = ConnectionSingleton.getInstance();
+                String            sql = "delete from film where ID = ?";
+                PreparedStatement pre = c.prepareStatement(sql);
+                pre.setInt(1, id);
+                pre.execute();
+                id = -1;
+            }
+            catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static Film findById(int idN) {
         Film p = null;
         try {
@@ -70,8 +114,6 @@ public class Film {
             e.printStackTrace();
         }
         return p;
-
-
     }
 
     public static void createTable() {
