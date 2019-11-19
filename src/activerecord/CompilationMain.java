@@ -1,140 +1,121 @@
 package activerecord;
 
-import activerecord.database.ConnectionSingleton;
+import activerecord.exception.RealisateurAbsentException;
+import activerecord.poo.Film;
+import activerecord.poo.Personne;
 
-import java.sql.*;
+import java.sql.SQLException;
+import java.util.List;
 
+/**
+ * cette classe a juste pour objectif de v�rifier les noms des m�thodes
+ */
 public class CompilationMain {
 
-    public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws SQLException, RealisateurAbsentException {
+		///////////////// test personne 
 
-        Connection connect = ConnectionSingleton.getInstance();
 
-        // creation de la table Personne
-        {
-            String createString = "CREATE TABLE Personne ( " + "ID INTEGER  AUTO_INCREMENT, "
-                    + "NOM varchar(40) NOT NULL, " + "PRENOM varchar(40) NOT NULL, " + "PRIMARY KEY (ID))";
-            Statement stmt = connect.createStatement();
-            stmt.executeUpdate(createString);
-            System.out.println("1) creation table Personne\n");
-        }
+		//creation de la table Personne
+		Personne.createTable();
 
-        // ajout de personne avec requete preparee
-        {
-            String SQLPrep = "INSERT INTO Personne (nom, prenom) VALUES (?,?);";
-            PreparedStatement prep;
-            // l'option RETURN_GENERATED_KEYS permet de recuperer l'id (car
-            // auto-increment)
-            prep = connect.prepareStatement(SQLPrep, Statement.RETURN_GENERATED_KEYS);
-            prep.setString(1, "Spielberg");
-            prep.setString(2, "Steven");
-            prep.executeUpdate();
-            System.out.println("2) ajout Steven Spielberg\n");
-        }
 
-        // ajout second personne
-        {
-            String SQLPrep = "INSERT INTO Personne (nom, prenom) VALUES (?,?);";
-            PreparedStatement prep = connect.prepareStatement(SQLPrep, Statement.RETURN_GENERATED_KEYS);
-            prep.setString(1, "Scott");
-            prep.setString(2, "Ridley");
-            prep.executeUpdate();
-            System.out.println("3) ajout Ridley Scott");
+		//constructeur
+		Personne p;
+		p = new Personne("spielberg", "steven");
+		p.save();
+		p = new Personne("scott", "ridley");
+		p.save();
+		p = new Personne("scott", "ridley");
+		System.out.println("**** table cree et tuples ajoutes ***");
 
-            // recuperation de la derniere ligne ajoutee (auto increment)
-            // recupere le nouvel id
-            int autoInc = -1;
-            ResultSet rs = prep.getGeneratedKeys();
-            if (rs.next()) {
-                autoInc = rs.getInt(1);
-            }
-            System.out.print("  ->  id utilise lors de l'ajout : ");
-            System.out.println(autoInc);
-            System.out.println();
-        }
 
-        // recuperation de toutes les personnes + affichage
-        {
-            System.out.println("4) Recupere les personnes de la table Personne");
-            String SQLPrep = "SELECT * FROM Personne;";
-            PreparedStatement prep1 = connect.prepareStatement(SQLPrep);
-            prep1.execute();
-            ResultSet rs = prep1.getResultSet();
-            // s'il y a un resultat
-            while (rs.next()) {
-                String nom = rs.getString("nom");
-                String prenom = rs.getString("prenom");
-                int id = rs.getInt("id");
-                System.out.println("  -> (" + id + ") " + nom + ", " + prenom);
-            }
-            System.out.println();
-        }
+		//recherche
+		System.out.println("**** tuples present - findall ****");
+		List<Personne> liste = Personne.findAll();
+		for (Personne plits : liste)
+			System.out.println(plits);
 
-        // suppression de la personne 1
-        {
-            PreparedStatement prep = connect.prepareStatement("DELETE FROM Personne WHERE id=?");
-            prep.setInt(1, 1);
-            prep.execute();
-            System.out.println("5) Suppression personne id 1 (Spielberg)");
-            System.out.println();
-        }
+		//ajout
+		System.out.println("**** ajout de David fincher - save ****");
+		p = new Personne("fincher", "david");
+		p.save();
 
-        // recuperation de la seconde personne + affichage
-        {
-            System.out.println("6) Recupere personne d'id 2");
-            String SQLPrep = "SELECT * FROM Personne WHERE id=?;";
-            PreparedStatement prep1 = connect.prepareStatement(SQLPrep);
-            prep1.setInt(1, 2);
-            prep1.execute();
-            ResultSet rs = prep1.getResultSet();
-            // s'il y a un resultat
-            if (rs.next()) {
-                String nom = rs.getString("nom");
-                String prenom = rs.getString("prenom");
-                int id = rs.getInt("id");
-                System.out.println("  -> (" + id + ") " + nom + ", " + prenom);
-            }
-            System.out.println();
-        }
+		//recuperation
+		System.out.println("**** recuperation steven Spielberg - findbyid ****");
+		Personne temp = Personne.findById(1);
+		System.out.println(temp);
 
-        // met a jour personne 2
-        {
-            String SQLprep = "update Personne set nom=?, prenom=? where id=?;";
-            PreparedStatement prep = connect.prepareStatement(SQLprep);
-            prep.setString(1, "S_c_o_t_t");
-            prep.setString(2, "R_i_d_l_e_y");
-            prep.setInt(3, 2);
-            prep.execute();
-            System.out.println("7) Effectue modification Personne id 2");
-            System.out.println();
-        }
+		//suppression
+		System.out.println("**** suppression steven spielberg - delete ****");
+		temp.delete();
+		List<Personne> liste2 = Personne.findAll();
+		for (Personne plits : liste2)
+			System.out.println(plits);
 
-        // recuperation de la seconde personne + affichage
-        {
-            System.out.println("8) Affiche Personne id 2 apres modification");
-            String SQLPrep = "SELECT * FROM Personne WHERE id=?;";
-            PreparedStatement prep1 = connect.prepareStatement(SQLPrep);
-            prep1.setInt(1, 2);
-            prep1.execute();
-            ResultSet rs = prep1.getResultSet();
-            // s'il y a un resultat
-            if (rs.next()) {
-                String nom = rs.getString("nom");
-                String prenom = rs.getString("prenom");
-                int id = rs.getInt("id");
-                System.out.println("  -> (" + id + ") " + nom + ", " + prenom);
-            }
-            System.out.println();
-        }
 
-        // suppression de la table personne
-        {
-            String drop = "DROP TABLE Personne";
-            Statement stmt = connect.createStatement();
-            stmt.executeUpdate(drop);
-            System.out.println("9) Supprime table Personne");
-        }
+		//recherche fincher
+		System.out.println("**** recherche fincher - findbyname ****");
+		temp.delete();
+		List<Personne> liste3 = Personne.findByName("fincher");
+		for (Personne plits : liste3)
+			System.out.println(plits);
 
-    }
+
+		//modification
+		Personne p2 = liste3.get(0);
+		p2.setNom("f_i_n_c_h_e_r");
+		p2.setPrenom("davif");
+		p2.save();
+		System.out.println("**** test modification  - save *** ");
+		List<Personne> liste4 = Personne.findAll();
+		for (Personne plits : liste4)
+			System.out.println(plits);
+
+		//getter
+		p2.getId();
+		p2.getNom();
+		p2.getPrenom();
+
+
+		///////////////// test film
+
+		//create table
+		Film.createTable();
+
+		Film f = new Film("seven", p2);
+		//sauvegarde
+		f.save();
+
+		//finByID
+		System.out.println("**** film finbyid **** ");
+		Film f2 = Film.findById(1);
+		System.out.println(f2);
+		System.out.println(f2.getId());
+		System.out.println(f2.getTitre());
+		Personne p3 = f2.getRealisateur();
+		System.out.println(p3);
+
+		//setter 
+		f2.setTitre("test2");
+		f2.save();
+
+		//sauve film modifie
+		System.out.println("**** film modifie **** ");
+		Film f3 = Film.findById(1);
+		System.out.println(f3);
+		System.out.println(f3.getId());
+		System.out.println(f3.getTitre());
+		Personne p5 = f3.getRealisateur();
+		System.out.println(p5);
+
+
+		//supprime table film
+		Film.deleteTable();
+		//suppression de la table personne
+		Personne.deleteTable();
+
+
+	}
 
 }

@@ -3,10 +3,8 @@ package activerecord.poo;
 
 import activerecord.database.ConnectionSingleton;
 import activerecord.exception.RealisateurAbsentException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 
 public class Film {
 
@@ -55,35 +53,15 @@ public class Film {
         this.idRea = idRea;
     }
 
-    public void save() {
-        try {
-            if (idRea == -1){
-                throw new RealisateurAbsentException();
-            }
-            Connection c = ConnectionSingleton.getInstance();
-            if (id == -1) {
-                String sql = "insert into film (TITRE, ID_REA) VALUES "
-                             + "(?,?)";
-                PreparedStatement pre = c.prepareStatement(sql);
-                pre.setString(1, titre);
-                pre.setInt(2, idRea);
-                ResultSet rs = pre.executeQuery();
-                rs.next();
-                id = rs.getInt("ID");
-            }
-            else {
-                String sql = "update film set titre = ? , ID_REA =  ? where id = ?";
-                PreparedStatement pre = c.prepareStatement(sql);
-                pre.setString(1, titre);
-                pre.setInt(2, idRea);
-                pre.setInt(3,id);
-                pre.execute();
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-
+    public static void createTable() {
+        String co = "CREATE TABLE IF NOT EXISTS `film` (\n" +
+                "  `ID` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                "  `TITRE` varchar(40) NOT NULL,\n" +
+                "  `ID_REA` int(11) DEFAULT NULL,\n" +
+                "  PRIMARY KEY (`ID`),\n" +
+                "  KEY `ID_REA` (`ID_REA`)\n" +
+                ") ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;";
+        ConnectionSingleton.execute(co);
     }
 
     public void delete() {
@@ -137,23 +115,38 @@ public class Film {
         return p;
     }
 
-    public static void createTable() {
-        String co = "create table film (\n"
-                    + "    ID     int auto_increment primary key,\n"
-                    + "    TITRE  varchar(40) not null,\n"
-                    + "    ID_REA int         null,\n"
-                    + "    constraint FK_FID_PID foreign key (ID_REA) references personne(ID)\n"
-                    + ");\n;";
-        ConnectionSingleton.execute(co);
-
-        String co2 = "create index ID_REA on film(ID_REA);";
-        ConnectionSingleton.execute(co2);
-    }
-
-    public static void dropTable() {
+    public static void deleteTable() {
         String co = "drop table film;";
         ConnectionSingleton.execute(co);
-        String co2 = "drop index ID_REA;";
-        ConnectionSingleton.execute(co2);
+    }
+
+    public void save() {
+        try {
+            if (idRea == -1) {
+                throw new RealisateurAbsentException();
+            }
+            Connection c = ConnectionSingleton.getInstance();
+            if (id == -1) {
+                String sql = "insert into film (TITRE, ID_REA) VALUES "
+                        + "(?,?)";
+                PreparedStatement pre = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                pre.setString(1, titre);
+                pre.setInt(2, idRea);
+                pre.executeUpdate();
+                ResultSet keys = pre.getGeneratedKeys();
+                keys.next();
+                this.id = keys.getInt(1);
+            } else {
+                String sql = "update film set titre = ? , ID_REA =  ? where id = ?";
+                PreparedStatement pre = c.prepareStatement(sql);
+                pre.setString(1, titre);
+                pre.setInt(2, idRea);
+                pre.setInt(3, id);
+                pre.execute();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 }

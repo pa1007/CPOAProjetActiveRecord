@@ -56,7 +56,7 @@ public class Personne {
         List<Personne> res = new ArrayList<>();
         try {
             Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM Personne";
+            String sql = "SELECT * FROM personne";
             PreparedStatement pre = c.prepareStatement(sql);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
@@ -72,7 +72,7 @@ public class Personne {
         Personne p = null;
         try {
             Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM Personne WHERE id = ?";
+            String sql = "SELECT * FROM personne WHERE id = ?";
             PreparedStatement pre = c.prepareStatement(sql);
             pre.setInt(1, id);
             ResultSet rs = pre.executeQuery();
@@ -89,7 +89,7 @@ public class Personne {
         List<Personne> res = new ArrayList<>();
         try {
             Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM Personne WHERE nom = ?";
+            String sql = "SELECT * FROM personne WHERE nom = ?";
             PreparedStatement pre = c.prepareStatement(sql);
             pre.setString(1, n);
             ResultSet rs = pre.executeQuery();
@@ -102,15 +102,25 @@ public class Personne {
         return res;
     }
 
+    public static void createTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS `personne` (\n" +
+                "  `ID` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                "  `NOM` varchar(40) NOT NULL,\n" +
+                "  `PRENOM` varchar(40) NOT NULL,\n" +
+                "  PRIMARY KEY (`ID`)\n" +
+                ") ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;";
+        ConnectionSingleton.execute(sql);
+    }
+
     public void save() {
         if (this.id == -1) {
             try {
                 Connection c = ConnectionSingleton.getInstance();
-                String sql = "INSERT INTO Personne(NOM,PRENOM) VALUES(?,?)";
+                String sql = "INSERT INTO personne(NOM,PRENOM) VALUES(?,?)";
                 PreparedStatement pre = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 pre.setString(1, this.nom);
                 pre.setString(2, this.prenom);
-                pre.executeQuery();
+                pre.executeUpdate();
                 ResultSet keys = pre.getGeneratedKeys();
                 keys.next();
                 this.id = keys.getInt(1);
@@ -120,12 +130,12 @@ public class Personne {
         } else {
             try {
                 Connection c = ConnectionSingleton.getInstance();
-                String sql = "UPDATE Personne SET nom = ?, prenom = ? WHERE id = ?";
+                String sql = "UPDATE personne SET nom = ?, prenom = ? WHERE id = ?";
                 PreparedStatement pre = c.prepareStatement(sql);
                 pre.setString(1, this.nom);
                 pre.setString(2, this.prenom);
                 pre.setInt(3, this.id);
-                pre.executeQuery();
+                pre.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -136,7 +146,7 @@ public class Personne {
         if (id != -1) {
             try {
                 Connection c = ConnectionSingleton.getInstance();
-                String sql = "DELETE FROM Personne WHERE id = ?";
+                String sql = "DELETE FROM personne WHERE id = ?";
                 PreparedStatement pre = c.prepareStatement(sql);
                 pre.setInt(1, this.id);
                 pre.execute();
@@ -145,12 +155,6 @@ public class Personne {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static void createTable() {
-        String sql = "CREATE TABLE Personne ( " + "ID INTEGER  AUTO_INCREMENT, "
-                + "NOM varchar(40) NOT NULL, " + "PRENOM varchar(40) NOT NULL, " + "PRIMARY KEY (ID))";
-        ConnectionSingleton.execute(sql);
     }
 
     public static void deleteTable() {
