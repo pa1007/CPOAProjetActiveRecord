@@ -2,7 +2,6 @@ package activerecord.poo;
 
 
 import activerecord.database.ConnectionSingleton;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,10 +16,16 @@ public class Personne {
     private String prenom;
 
 
-    public Personne(int id, String nom, String prenom) {
+    private Personne(int id, String nom, String prenom) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
+    }
+
+    public Personne(String nom, String prenom) {
+        this.nom = nom;
+        this.prenom = prenom;
+        id = -1;
     }
 
     public int getId() {
@@ -68,15 +73,16 @@ public class Personne {
     public static Personne findById(int id) {
         Personne p = null;
         try {
-            Connection c = ConnectionSingleton.getInstance();
-            String sql = "SELECT * FROM Personne WHERE id = ?";
+            Connection        c   = ConnectionSingleton.getInstance();
+            String            sql = "SELECT * FROM Personne WHERE id = ?";
             PreparedStatement pre = c.prepareStatement(sql);
             pre.setInt(1, id);
             ResultSet rs = pre.executeQuery();
             if (rs.next()) {
                 p = new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"));
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             e.printStackTrace();
         }
         return p;

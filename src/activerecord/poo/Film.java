@@ -2,6 +2,10 @@ package activerecord.poo;
 
 
 import activerecord.database.ConnectionSingleton;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Film {
 
@@ -51,8 +55,21 @@ public class Film {
     }
 
     public static Film findById(int idN) {
-
-
+        Film p = null;
+        try {
+            Connection        c   = ConnectionSingleton.getInstance();
+            String            sql = "SELECT * FROM film WHERE id = ?";
+            PreparedStatement pre = c.prepareStatement(sql);
+            pre.setInt(1, idN);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                p = new Film(rs.getInt("ID"), rs.getString("TITRE"), rs.getInt("ID_REA"));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return p;
 
 
     }
@@ -70,7 +87,7 @@ public class Film {
         ConnectionSingleton.execute(co2);
     }
 
-    public static void dropTable(){
+    public static void dropTable() {
         String co = "drop table film;";
         ConnectionSingleton.execute(co);
         String co2 = "drop index ID_REA;";
