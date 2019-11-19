@@ -2,6 +2,7 @@ package activerecord.poo;
 
 
 import activerecord.database.ConnectionSingleton;
+import activerecord.exception.RealisateurAbsentException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,6 +57,9 @@ public class Film {
 
     public void save() {
         try {
+            if (idRea == -1){
+                throw new RealisateurAbsentException();
+            }
             Connection c = ConnectionSingleton.getInstance();
             if (id == -1) {
                 String sql = "insert into film (TITRE, ID_REA) VALUES "
@@ -108,6 +112,23 @@ public class Film {
             ResultSet rs = pre.executeQuery();
             if (rs.next()) {
                 p = new Film(rs.getInt("ID"), rs.getString("TITRE"), rs.getInt("ID_REA"));
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+    public static Film findByRealisateur(int idN) {
+        Film p = null;
+        try {
+            Connection        c   = ConnectionSingleton.getInstance();
+            String            sql = "SELECT * FROM film WHERE ID_REA = ?";
+            PreparedStatement pre = c.prepareStatement(sql);
+            pre.setInt(1, idN);
+            ResultSet rs = pre.executeQuery();
+            if (rs.next()) {
+                p = new Film(rs.getInt("ID"), rs.getString("TITRE"), idN);
             }
         }
         catch (SQLException e) {
