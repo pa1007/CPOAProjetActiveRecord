@@ -9,20 +9,20 @@ import java.util.List;
 public class Personne {
 
     private int    id;
-    private String nom;
     private String prenom;
+    private String nom;
 
 
-    public Personne(String nom, String prenom) {
-        this.nom = nom;
+    public Personne(String prenom, String noms) {
         this.prenom = prenom;
+        this.nom = noms;
         id = -1;
     }
 
-    private Personne(int id, String nom, String prenom) {
+    private Personne(int id, String prenom, String noms) {
         this.id = id;
-        this.nom = nom;
         this.prenom = prenom;
+        this.nom = noms;
     }
 
     public int getId() {
@@ -34,21 +34,21 @@ public class Personne {
     }
 
 
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-
     public String getPrenom() {
         return prenom;
     }
 
     public void setPrenom(String prenom) {
         this.prenom = prenom;
+    }
+
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public void save() {
@@ -108,7 +108,7 @@ public class Personne {
             PreparedStatement pre = c.prepareStatement(sql);
             ResultSet         rs  = pre.executeQuery();
             while (rs.next()) {
-                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
+                res.add(new Personne(rs.getInt("id"), rs.getString("prenom"), rs.getString("nom")));
             }
         }
         catch (SQLException e) {
@@ -126,7 +126,7 @@ public class Personne {
             pre.setInt(1, id);
             ResultSet rs = pre.executeQuery();
             if (rs.next()) {
-                p = new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom"));
+                p = new Personne(rs.getInt("id"), rs.getString("prenom"), rs.getString("nom"));
             }
         }
         catch (SQLException e) {
@@ -144,7 +144,7 @@ public class Personne {
             pre.setString(1, n);
             ResultSet rs = pre.executeQuery();
             while (rs.next()) {
-                res.add(new Personne(rs.getInt("id"), rs.getString("nom"), rs.getString("prenom")));
+                res.add(new Personne(rs.getInt("id"), rs.getString("prenom"), rs.getString("nom")));
             }
         }
         catch (SQLException e) {
